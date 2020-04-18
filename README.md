@@ -1,7 +1,7 @@
 # MongoDB - Replication
 Mongodb 3.2 on openshift 3.11
 
-# 1. Prepare the enviroment for Openshift
+## 1. Prepare the enviroment for Openshift
 
 
 ```sh
@@ -11,7 +11,7 @@ $ $ oc project
 ```
 
 
-# 2. Create the secrets
+## 2. Create the secrets
 
 
 ```sh
@@ -27,7 +27,7 @@ MONGODB_KEYFILE_VALUE     xxxxx
 MONGODB_SERVICE_NAME      mongodb-internal
 ```
 
-# 3.Deployment MongoDB
+## 3.Deployment MongoDB
 
 ```
 $ mkdir -p /home/usuario/mongodb
