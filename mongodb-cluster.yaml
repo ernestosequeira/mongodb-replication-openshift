@@ -1,0 +1,116 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: mongodb-replication
+  annotations:
+    description: "MongoDB Replication."
+    iconClass: "icon-mongodb"
+    tags: "database,mongodb,replication"
+parameters:
+  - name: MONGODB_SERVICE_NAME
+    displayName: "OpenShift Service Name"
+    description: "The name of the OpenShift Service exposed for the database."
+    value: mongodb
+    required: true
+
+objects:
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: "${MONGODB_SERVICE_NAME}"
+    spec:
+      ports:
+        - name: mongodb
+          port: 27017
+      selector:
+        name: "${MONGODB_SERVICE_NAME}"
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: "${MONGODB_SERVICE_NAME}-internal"
+      annotations:
+        service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    spec:
+      clusterIP: None
+      ports:
+        - name: mongodb
+          port: 27017
+      selector:
+        name: "${MONGODB_SERVICE_NAME}"
+
+  - kind: StatefulSet
+    apiVersion: apps/v1beta1
+    metadata:
+      name: "${MONGODB_SERVICE_NAME}"
+    spec:
+      serviceName: "${MONGODB_SERVICE_NAME}-internal"
+      replicas: 3
+      template:
+        metadata:
+          # this label will be used for count running pods
+          labels:
+            name: "${MONGODB_SERVICE_NAME}"
+        spec:
+          containers:
+            - name: mongo-container
+              image: centos/mongodb-32-centos7
+              ports:
+                - containerPort: 27017
+              args:
+                - "run-mongod-pet"
+              volumeMounts:
+                - name: mongo-data
+                  mountPath: "/var/lib/mongodb/data"
+              env:
+                - name: MONGODB_USER
+                  valueFrom:
+                    secretKeyRef:
+                      key: MONGODB_USER
+                      name: database-mongodb
+                - name: MONGODB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: MONGODB_PASSWORD
+                      name: database-mongodb
+                - name: MONGODB_DATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      key: MONGODB_DATABASE
+                      name: database-mongodb
+                - name: MONGODB_ADMIN_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: MONGODB_ADMIN_PASSWORD
+                      name: database-mongodb
+                - name: MONGODB_REPLICA_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      key: MONGODB_REPLICA_NAME
+                      name: database-mongodb
+                - name: MONGODB_KEYFILE_VALUE
+                  valueFrom:
+                    secretKeyRef:
+                      key: MONGODB_KEYFILE_VALUE
+                      name: database-mongodb
+                - name: MONGODB_SERVICE_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      key: MONGODB_SERVICE_NAME
+                      name: database-mongodb
+              resources:
+                limits:
+                  memory: 1024Mi
+              readinessProbe:
+                exec:
+                  command:
+                    - stat
+                    - /tmp/initialized
+      volumeClaimTemplates:
+        - metadata:
+            name: mongo-data
+            annotations:
+          spec:
+            accessModes: [ ReadWriteOnce ]
+            resources:
+              requests:
+                storage: 512Mi
