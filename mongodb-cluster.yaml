@@ -53,7 +53,7 @@ objects:
         spec:
           containers:
             - name: mongo-container
-              image: centos/mongodb-32-centos7
+              image: docker-registry.default.svc:5000/openshift/mongodb-32-rhel7            
               ports:
                 - containerPort: 27017
               args:
@@ -99,7 +99,7 @@ objects:
                       name: database-mongodb
               resources:
                 limits:
-                  memory: 1024Mi
+                  memory: 5Gi
               readinessProbe:
                 exec:
                   command:
@@ -113,4 +113,5 @@ objects:
             accessModes: [ ReadWriteOnce ]
             resources:
               requests:
-                storage: 512Mi
+                storage: 100Gi
+            storageClassName: glusterfs-storage
