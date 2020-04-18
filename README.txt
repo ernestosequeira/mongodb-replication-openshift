@@ -1,11 +1,18 @@
 # MongoDB - Replication
 Mongodb 3.2 on openshift 3.11
 
+# 1. Prepare the enviroment for Openshift
 
-# 1. Secrets
+
+```sh
+$ oc login https://openshift.example.com:443 --token={xxxxxxxxxx}
+$ oc new-project test-mongodb --description="MongoDB - Test" --display-name="MongoDB Test"
+$ oc project
+```
 
 
-### Prepare the enviroment for Openshift, create the secrets
+# 2. Create the secrets
+
 
 ```sh
 Example:
@@ -21,10 +28,9 @@ MONGODB_SERVICE_NAME      mongodb-internal
 
 ```
 
-### Deployment MongoDB
+# 3.Deployment MongoDB
 
 ```
-$ oc login https://openshift.example.com:443 --token={xxxxxxxxxx}
 mkdir -p /home/usuario/mongodb
 cd /home/usuario/mongodb
 git clone https://github.com/ernestosequeira/mongodb-replication-openshift.git
